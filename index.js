@@ -31,20 +31,19 @@ function draw() {
   }
   */
 
-  let amt=100;
+  let amt=50;
   let rW=map(mX,0,width,5,amt);
   let margin = map(mY,0,height,0,amt/2);
   let pts=[], ptsCnt=0;
   clear();
+  background(255);
   rectMode(CENTER);
   for(let x = amt/2; x < width; x += amt){
     for(let y = amt/2; y < height; y += amt){
-      if (hue>=360){
-        hue=0;
-      }
+      hue=hueOverflow(hue);
       hue+=0.01;
       noStroke();
-      fill(hue,random(50,100),random(50,100));
+      fill(hueOverflow(hue+y/20),random(50,100),random(50,100));
       let off;
       if (rW>=amt){
         off=0
@@ -54,12 +53,10 @@ function draw() {
       
       rect(x,y,rW+off,rW+off);
       hueC=hue+180;
-      if (hueC>=360){
-        hueC-=360;
-      }
+      hueC=hueOverflow(hueC);
       let xp,yp;
       for (let i=0; i<amt/5;i++){
-        stroke(hueC,random(50,100),random(50,100));
+        stroke(hueOverflow(hueC+y/20),random(50,100),random(50,100));
         strokeWeight(random(2,amt/10));
         xp=random(x + margin, x + rW - margin)-rW/2;
         yp=random(y + margin, y + rW - margin)-rW/2;
@@ -85,12 +82,18 @@ function draw() {
   }
 }
 
+function hueOverflow(h){
+  if (h>=360){
+    h-=360;
+  }
+  return h;
+}
+
 function keyPressed() {
   if (key === "e" || key === "E") {
     if (canvas === undefined) {
       throw new Error("Could not find your canvas");
     }
-    saveCanvas(canvas, "sketch_" + eCnt, "png");
-    eCnt += 1;
+    saveCanvas(canvas, "sketch", "png");
   } 
 }
