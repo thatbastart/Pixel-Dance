@@ -1,15 +1,22 @@
 let canvas = undefined;
 let hue=0, hueC=0;
 let mX=0,mY=0;
+let mic,fft;
 
 function setup() {
   canvas = createCanvas(1000, 1000);
   canvas.parent("sketch");
   colorMode(HSB,360,100,100,100)
-  frameRate(10);
+  frameRate(15);
+  fft = new p5.FFT();
+  mic=new p5.AudioIn();
+  mic.start();
+  fft.setInput(mic);
 }
 
 function draw() {
+  //frameRate(map(lvl,0.0,1.0,5,30));
+  
   /*
   mX=mouseX;
   mY=mouseY;
@@ -18,9 +25,23 @@ function draw() {
   if (mouseX<0) mX=0;
   if (mouseY<0) mY=0;
   */
+
+  let en,tmp;
+  fft.analyze();
+  en=fft.getEnergy("treble");
+  tmp=map(en,125,150,0,width);
+  if (tmp<0) tmp=0;
+  if(tmp>width) tmp=width;
+  mX=tmp;
+  
+  en=fft.getEnergy("bass");
+  tmp=map(en,240,255,0,height);
+  if (tmp<0) tmp=0;
+  if(tmp>height) tmp=height;
+  mY=tmp;
   
   //simulates moving mouse around canvas edges clockwise
-  
+  /*
   let speed=22.2;
   if (mX<width && mY<=0){
     mX+=speed;
@@ -32,8 +53,10 @@ function draw() {
     mY-=speed;
   }
   
+  */
 
-  let amt=50;
+
+  let amt=100;
   let rW=map(mX,0,width,0,amt);
   let margin = map(mY,0,height,0,amt/2);
   let pts=[], ptsCnt=0;
@@ -43,7 +66,7 @@ function draw() {
   for(let x = amt/2; x < width; x += amt){
     for(let y = amt/2; y < height; y += amt){
       hue=hueOverflow(hue);
-      hue+=0.01;
+      hue+=amt/2500;
       noStroke();
       fill(hueOverflow(hue+y/20),random(50,100),random(50,100));
       let off;
@@ -94,6 +117,8 @@ function draw() {
     remove();
   }
   */
+
+ 
 }
 
 function hueOverflow(h){
